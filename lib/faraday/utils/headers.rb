@@ -121,19 +121,18 @@ module Faraday
           .tap { |a| a.shift if a.first.start_with?('HTTP/') }
           .map { |h| h.split(/:\s*/, 2) } # split key and value
           .reject { |p| p[0].nil? } # ignore blank lines
-          .each { |key, value| add_parsed(key, value) }
+          .each { |key, value| append(key, value) }
       end
 
-      protected
-
-      attr_reader :names
-
-      private
-
-      # Join multiple values with a comma.
-      def add_parsed(key, value)
+      # Append new header - combine with existing if applicable using a comma.
+      def append(key, value)
+        value = value.to_ary.join(', ') if value.respond_to?(:to_ary)
         self[key] ? self[key] << ', ' << value : self[key] = value
       end
+
+    protected
+
+      attr_reader :names
     end
   end
 end
